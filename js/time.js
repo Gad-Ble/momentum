@@ -1,4 +1,4 @@
-import playList from './playList.js';
+import playList from './playlist.js';
 const timeSection = document.querySelector('.time');
 const dateSection = document.querySelector('.date');
 const greeting = document.querySelector('.greeting');
@@ -136,7 +136,7 @@ slidePrev.addEventListener('click', () => {
 // Функция указания фонового цвета
 function setBg() {
     const img = new Image();
-    img.src = `https://raw.githubusercontent.com/rolling-scopes-school/stage1-tasks/assets/images/${timeOfDay}/${randomNum}.jpg`;
+    img.src = `../momentum/assets/img/${timeOfDay}/${randomNum}.webp`;
     img.onload = () => {
         body.style.backgroundImage = `url(${img.src})`
     }
