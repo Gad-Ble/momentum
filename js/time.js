@@ -136,7 +136,7 @@ slidePrev.addEventListener('click', () => {
 // Функция указания фонового цвета
 function setBg() {
     const img = new Image();
-    img.src = `.../assets/img/${timeOfDay}/${randomNum}.webp`;
+    img.src = `../momentum/assets/img/${timeOfDay}/${randomNum}.webp`;
     img.onload = () => {
         body.style.backgroundImage = `url(${img.src})`
     }
