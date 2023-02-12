@@ -1,4 +1,4 @@
-import playList from './playList.js';
+import playList from './playlist.js';
 const timeSection = document.querySelector('.time');
 const dateSection = document.querySelector('.date');
 const greeting = document.querySelector('.greeting');
