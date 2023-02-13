@@ -19,6 +19,9 @@ const playPrev = document.querySelector('.play-prev');
 const playNext = document.querySelector('.play-next');
 const play = document.querySelector('.play');
 const playListItems = document.querySelector('.play-list');
+const progressAudio = document.querySelector('.progress');
+const progressBar = document.querySelector('.progress-bar');
+const currentTimeAudio = document.querySelector('.current-time');
 
 
 
@@ -133,10 +136,10 @@ slidePrev.addEventListener('click', () => {
 })
 //------------------------------------------------------------\\
 
-// Функция указания фонового цвета
+// Функция указания фонового изображения
 function setBg() {
     const img = new Image();
-    img.src = `../momentum/assets/img/${timeOfDay}/${randomNum}.webp`;
+    img.src = `./assets/img/${timeOfDay}/${randomNum}.webp`;
     img.onload = () => {
         body.style.backgroundImage = `url(${img.src})`
     }
@@ -190,7 +193,7 @@ changeQuote.addEventListener('click', () => {
 // Плеер
 const audio = new Audio();
 let playNum = 0;
-
+currentTimeAudio.textContent = '0:00/0:00'
 
 for (let a = 0; a < Object.keys(playList).length; a++) {
     const li = document.createElement('li');
@@ -204,23 +207,24 @@ playItems[0].classList.add('item-active');
 
 function playAudio() {
     audio.src = playList[playNum].src;
-    audio.currentTime = 0;
-    if (isPlay === false) {
-        audio.play();
-        isPlay = true
-        play.classList.remove('play');
-        play.classList.add('pause');
-    } else {
-        play.classList.remove('pause');
-        play.classList.add('play');
-        audio.pause();
-        isPlay = false
-    }
-
+    audio.currentTime = current;
+    audio.play();
+    isPlay = true
+    play.classList.remove('play');
+    play.classList.add('pause');
+    audio.addEventListener('timeupdate', updateProgress);
+    progressBar.addEventListener('click', setProgress);
+    audio.addEventListener('ended', nextTrack)
 }
-
-playNext.addEventListener('click', () => {
-    playItems[playNum].classList.remove('item-active')
+function pauseAudio() {
+    play.classList.remove('pause');
+    play.classList.add('play');
+    audio.pause();
+    isPlay = false;
+}
+function nextTrack() {
+    playItems[playNum].classList.remove('item-active');
+    current = 0;
     if (playNum < Object.keys(playList).length - 1) {
         isPlay = false
         playNum++
@@ -231,10 +235,10 @@ playNext.addEventListener('click', () => {
         playAudio()
     }
     playItems[playNum].classList.add('item-active')
-})
-
-playPrev.addEventListener('click', () => {
-    playItems[playNum].classList.remove('item-active')
+}
+function prevTrack() {
+    playItems[playNum].classList.remove('item-active');
+    current = 0;
     if (playNum > 0) {
         isPlay = false
         playNum--
@@ -245,15 +249,56 @@ playPrev.addEventListener('click', () => {
         playAudio()
     }
     playItems[playNum].classList.add('item-active')
-})
-
+}
+playNext.addEventListener('click', nextTrack)
+playPrev.addEventListener('click', prevTrack)
 play.addEventListener('click', () => {
-    if (isPlay === false) {
-        playAudio();
-        isPlay = true;
+    if (isPlay) {
+        pauseAudio()
     } else {
-        playAudio();
-        isPlay = false;
+        playAudio()
     }
 })
+
+playItems.forEach((element, index) => {
+    element.addEventListener('click', () => {
+        playItems[playNum].classList.remove('item-active');
+        if (isPlay) {
+            pauseAudio()
+        }
+        current = 0;
+        playNum = index;
+        playItems[playNum].classList.add('item-active');
+        playAudio();
+    })
+});
+
+let current = 0;
+
+function updateProgress() {
+    const audioWidth = audio.duration;
+    current = audio.currentTime;
+    const progress = (current / audioWidth) * 100;
+    progressAudio.style.width = `${progress}%`;
+    let currentMinutes = Math.floor(current / 60);
+    let currentSeconds = Math.floor(current % 60);
+    let durationMinutes = Math.floor(audioWidth / 60);
+    let durationSeconds = Math.floor(audioWidth % 60);
+    if (currentSeconds < 10) {
+        currentSeconds = `0${Math.floor(current % 60)}`;
+    }
+    if (durationSeconds < 10) {
+        durationSeconds = `0${Math.floor(audioWidth % 60)}`;
+    }
+    currentTimeAudio.textContent = `${currentMinutes}:${currentSeconds} / ${durationMinutes}:${durationSeconds}`;
+}
+
+
+function setProgress(e) {
+    const width = progressBar.clientWidth;
+    const click = e.offsetX;
+    const duration = audio.duration;
+    audio.currentTime = click / width * duration;
+}
+
 // ----------------------------------------------------------\\
