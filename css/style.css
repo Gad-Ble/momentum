@@ -52,7 +52,6 @@ body {
 
 .current-time {
   font-size: 10px;
-  margin-bottom: 15px;
 }
 
 .progress-bar {
@@ -67,6 +66,37 @@ body {
   width: 0;
   background-color: white;
   height: 3px;
+  border-radius: 10px;
+}
+
+.audio_info {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sound {
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.sound_icon {
+  cursor: pointer;
+}
+
+.sound_level_bar {
+  transition: width 0.3s ease;
+  background-color: #5d5d5d;
+  height: 5px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.sound_level {
+  background-color: white;
+  height: 5px;
   border-radius: 10px;
 }
 

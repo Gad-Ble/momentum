@@ -301,4 +301,34 @@ function setProgress(e) {
     audio.currentTime = click / width * duration;
 }
 
+const soundLevelBar = document.querySelector('.sound_level_bar');
+const soundLevel = document.querySelector('.sound_level');
+const soundIcon = document.querySelector('.sound_icon');
+const sound = document.querySelector('.sound');
+
+soundIcon.addEventListener('click', () => {
+    if (audio.muted) {
+        audio.muted = false;
+        soundIcon.src = './assets/svg/sound-high.svg'
+    } else {
+        audio.muted = true;
+        soundIcon.src = './assets/svg/sound-off.svg'
+    }
+})
+
+sound.addEventListener('mouseover', () => {
+    soundLevelBar.style.width = '100%'
+    sound.style.width = '100px'
+})
+sound.addEventListener('mouseout', () => {
+    soundLevelBar.style.width = '0'
+    sound.style.width = ''
+})
+function audioVolume(e) {
+    const width = soundLevelBar.clientWidth;
+    const click = e.offsetX;
+    audio.volume = click % 100 / width;
+    soundLevel.style.width = `${audio.volume * 100}%`;
+}
+soundLevelBar.addEventListener('click', audioVolume)
 // ----------------------------------------------------------\\
