@@ -1,4 +1,6 @@
 import playList from './playlist.js';
+import quotes from './rusQuotes.js';
+
 const timeSection = document.querySelector('.time');
 const dateSection = document.querySelector('.date');
 const greeting = document.querySelector('.greeting');
@@ -22,12 +24,18 @@ const playListItems = document.querySelector('.play-list');
 const progressAudio = document.querySelector('.progress');
 const progressBar = document.querySelector('.progress-bar');
 const currentTimeAudio = document.querySelector('.current-time');
-
-
+const language = document.getElementById('lang');
+const langOptions = document.querySelectorAll('.lang');
 
 let isPlay = false;
 let randomNum = 10;
 let timeOfDay = '';
+let lang = localStorage.getItem('lang') || 'en';
+
+language.addEventListener('change', () => {
+    lang = language.value;
+    location.reload ()
+})
 
 //Функция добавления времени на страницу (через неё происходит вызов всех функций, которым необходимо обновление времени)
 function showTime() {
@@ -45,7 +53,13 @@ showTime()
 function showDate() {
     const date = new Date();
     const options = { weekday: 'long', month: 'long', day: 'numeric' };
-    const currentDate = date.toLocaleDateString('en-US', options);
+    let currentDate;
+    if (lang === 'en') {
+        currentDate = date.toLocaleDateString('en-US', options);
+    } else if (lang === 'ru') {
+        currentDate = date.toLocaleDateString('ru-RU', options);
+    }
+
     dateSection.textContent = currentDate;
 }
 // ----------------------------------------------------------\\
@@ -54,19 +68,36 @@ function showDate() {
 function getTimeOfDay() {
     const date = new Date();
     const hours = date.getHours();
-    if (hours >= 0 && hours <= 6) {
-        greeting.textContent = 'Good' + ' ' + 'night';
-        timeOfDay = 'night'
-    } else if (hours > 6 && hours <= 12) {
-        greeting.textContent = 'Good' + ' ' + 'morning';
-        timeOfDay = 'morning'
-    } else if (hours > 12 && hours <= 18) {
-        greeting.textContent = 'Good' + ' ' + 'afternoon';
-        timeOfDay = 'afternoon'
-    } else if (hours > 18 && hours <= 23) {
-        greeting.textContent = 'Good' + ' ' + 'evening';
-        timeOfDay = 'evening'
+    if (lang === 'en') {
+        if (hours >= 0 && hours <= 6) {
+            greeting.textContent = 'Good' + ' ' + 'night';
+            timeOfDay = 'night'
+        } else if (hours > 6 && hours <= 12) {
+            greeting.textContent = 'Good' + ' ' + 'morning';
+            timeOfDay = 'morning'
+        } else if (hours > 12 && hours <= 18) {
+            greeting.textContent = 'Good' + ' ' + 'afternoon';
+            timeOfDay = 'afternoon'
+        } else if (hours > 18 && hours <= 23) {
+            greeting.textContent = 'Good' + ' ' + 'evening';
+            timeOfDay = 'evening'
+        }
+    } else if (lang === 'ru') {
+        if (hours >= 0 && hours <= 6) {
+            greeting.textContent = 'Доброй' + ' ' + 'ночи';
+            timeOfDay = 'night'
+        } else if (hours > 6 && hours <= 12) {
+            greeting.textContent = 'Доброе' + ' ' + 'утро';
+            timeOfDay = 'morning'
+        } else if (hours > 12 && hours <= 18) {
+            greeting.textContent = 'Добрый' + ' ' + 'день';
+            timeOfDay = 'afternoon'
+        } else if (hours > 18 && hours <= 23) {
+            greeting.textContent = 'Добрый' + ' ' + 'вечер';
+            timeOfDay = 'evening'
+        }
     }
+
 }
 // ----------------------------------------------------------\\
 
@@ -74,12 +105,19 @@ function getTimeOfDay() {
 function setLocalStorage() {
     localStorage.setItem('name', name.value);
     localStorage.setItem('city', city.value);
+    localStorage.setItem('lang', language.value);
 }
 window.addEventListener('beforeunload', setLocalStorage)
 
 function getLocalStorage() {
-    if (name.value === '') {
-        name.placeholder = '[Enter name]'
+    if (lang === 'en') {
+        if (name.value === '') {
+            name.placeholder = '[Enter name]'
+        }
+    } else if (lang === 'ru') {
+        if (name.value === '') {
+            name.placeholder = '[Введите имя]'
+        }
     }
     if (localStorage.getItem('name')) {
         name.value = localStorage.getItem('name');
@@ -90,8 +128,15 @@ function getLocalStorage() {
         city.value = localStorage.getItem('city');
         getWeather()
     } else {
-        city.value = 'Minsk'
+        if (lang === 'en') {
+            city.value = 'Minsk'
+        } else if (lang === 'ru') {
+            city.value = 'Минск'
+        }
         getWeather()
+    }
+    if (localStorage.getItem('lang')) {
+        language.value = localStorage.getItem('lang')
     }
 }
 window.addEventListener('load', getLocalStorage)
@@ -150,37 +195,54 @@ function setBg() {
 //Виджет погоды
 city.addEventListener('change', () => {
     if (city.value === '') {
-        city.placeholder = '[Enter city]'
+        if (lang === 'en') {
+            city.placeholder = '[Enter city]'
+            temperature.textContent = `Error! Nothing to geocode for ''!`;
+        } else if (lang === 'ru') {
+            city.placeholder = '[Введите город]'
+            temperature.textContent = `Ошибка! Нечего геокодировать ''!`;
+        }
         weatherIcon.className = 'weather-icon owf';
-        temperature.textContent = `Error! Nothing to geocode for ''!`;
         weatherDescription.textContent = '';
         humidity.textContent = '';
         wind.textContent = '';
-
     }
     getWeather()
 })
 async function getWeather() {
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city.value}&lang=en&appid=50fe72f01dc3f2f95c8d7672ffc3a9c6&units=metric`;
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city.value}&lang=${lang}&appid=50fe72f01dc3f2f95c8d7672ffc3a9c6&units=metric`;
     const res = await fetch(url);
     const data = await res.json();
     weatherIcon.className = 'weather-icon owf';
     weatherIcon.classList.add(`owf-${data.weather[0].id}`);
     temperature.textContent = `${Math.floor(data.main.temp)}°C`;
     weatherDescription.textContent = data.weather[0].description;
-    humidity.textContent = `Humidity: ${data.main.humidity}%`;
-    wind.textContent = `Wind speed: ${Math.floor(data.wind.speed)} m/s`;
+    if (lang === 'en') {
+        humidity.textContent = `Humidity: ${data.main.humidity}%`;
+        wind.textContent = `Wind speed: ${Math.floor(data.wind.speed)} m/s`;
+    } else if (lang === 'ru') {
+        humidity.textContent = `Влажность: ${data.main.humidity}%`;
+        wind.textContent = `Скорость ветра: ${Math.floor(data.wind.speed)} м/с`;
+    }
+
 }
 // ----------------------------------------------------------\\
 
 // Виджет цитаты
 async function getQuotes() {
-    let num = Math.floor(Math.random() * 1643);
-    const url = 'https://type.fit/api/quotes';
-    const res = await fetch(url);
-    const data = await res.json();
-    quote.textContent = data[num].text;
-    author.textContent = data[num].author;
+    let num = 0;
+    if (lang === 'en') {
+        num = Math.floor(Math.random() * 1643);
+        const url = 'https://type.fit/api/quotes';
+        const res = await fetch(url);
+        const data = await res.json();
+        quote.textContent = data[num].text;
+        author.textContent = data[num].author;
+    } else if (lang === 'ru') {
+        num = Math.floor(Math.random() * 99);
+        quote.textContent = quotes[num].text;
+        author.textContent = quotes[num].author;
+    }
 }
 getQuotes()
 
